@@ -1,0 +1,9 @@
+{application,libraterl,
+             [{description,"Librato bindings for Erlang"},
+              {vsn,"0.1"},
+              {registered,[]},
+              {applications,[kernel,stdlib,inets,ssl,lager]},
+	      {env, [
+	      	    {librato_url, "https://metrics-api.librato.com/v1"}
+		]}
+]}.

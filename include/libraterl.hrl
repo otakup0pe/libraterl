@@ -1,0 +1,3 @@
+-define(cfg(K), begin {ok, V} = application:get_env(libraterl, K), V end).
+-define(URL, ?cfg(librator_url)).
+-define(warn(F, A), error_logger:warn_msg("[libraterl] " ++ F, A)).
