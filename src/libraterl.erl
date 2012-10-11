@@ -49,7 +49,6 @@ p_gauge_bump(GS, #state{url = URL, success = S, error = E, prefix = Prefix} = St
         {ok, {{_, 200, _}, HR, B}} ->
 	    State#state{success = S + 1};
 	{error, socket_closed_remotely} ->
-	    ?warn("socket closed!", []),
 	    State#state{error = E + 1}
     end.
 
