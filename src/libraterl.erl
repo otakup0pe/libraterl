@@ -48,6 +48,8 @@ p_gauge_bump(GS, #state{url = URL, success = S, error = E, prefix = Prefix} = St
     case httpc:request(post, {URL ++ "/metrics", H, "application/json", R}, [], []) of
         {ok, {{_, 200, _}, HR, B}} ->
 	    State#state{success = S + 1};
+        {ok, {{_, 503, _}, _HR, _B}} ->
+            State#state{error = E + 1};
 	{error, socket_closed_remotely} ->
 	    State#state{error = E + 1}
     end.
