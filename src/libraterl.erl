@@ -42,15 +42,17 @@ terminate(_, _State) ->
 p_auth(H, #state{user = U, api = A}) ->
     [{"Authorization", "Basic " ++ base64:encode_to_string(U ++ ":" ++ A)}|H].
 
-p_gauge_bump(GS, #state{url = URL, success = S, error = E, prefix = Prefix} = State) ->
+p_gauge_bump(GS, #state{url = URL, success = S, error = E} = State) ->
     R = jiffy:encode({[{gauges, {lists:map(encode_gauge_fun(State), GS)}}]}),
     H = p_auth([], State),
     case httpc:request(post, {URL ++ "/metrics", H, "application/json", R}, [], []) of
-        {ok, {{_, 200, _}, HR, B}} ->
+        {ok, {{_, 200, _}, _HR, _B}} ->
 	    State#state{success = S + 1};
-        {ok, {{_, 503, _}, _HR, _B}} ->
+        {ok, {{_, I, _}, _HR, _B}} when is_integer(I) ->
+            ?warn("invalid status ~p returned", [I]),
             State#state{error = E + 1};
 	{error, socket_closed_remotely} ->
+            ?warn("socket closed", []),
 	    State#state{error = E + 1}
     end.
 
