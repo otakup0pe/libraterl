@@ -2,7 +2,7 @@
 -author('jonafree@gmail.com').
 -behaviour(gen_server).
 
--export([start_link/3, start_link/4, gauge_bump/2, gauge_bump/4]).
+-export([start_link/3, start_link/4, gauge_bump/2, gauge_bump/4, info/0]).
 -export([init/1, handle_cast/2, handle_call/3, handle_info/2, terminate/2, code_change/3]).
 
 -include("libraterl.hrl").
@@ -13,6 +13,9 @@ start_link(User, API, Prefix) when is_list(User), is_list(API), is_list(Prefix) 
     {ok, _PID} = gen_server:start_link(?MODULE, [User, API, Prefix], []).    
 start_link(Name, User, API, Prefix) when is_list(User), is_list(API), is_list(Prefix) ->
     {ok, _PID} = gen_server:start_link(Name, ?MODULE, [User, API, Prefix], []).
+
+info() ->
+    gen_server:call(?MODULE, info).
 
 gauge_bump(Name, Gauges) when is_list(Gauges) ->
     gen_server:cast(Name, {gauge_bump, Gauges}).
@@ -27,8 +30,8 @@ handle_cast({gauge_bump, G}, State) ->
 handle_cast({gauge_bump, Key, Value, TS}, State) ->
     {noreply, p_gauge_bump([{Key, Value, TS}], State)}.
 
-handle_call(undefined, _From, State) ->
-    {noreply, State}.
+handle_call(info, _From, #state{success = S, error = E, user = U} = State) ->
+    {reply, [{success, S}, {error, E}, {user, U}], State}.
 
 handle_info(undefined, State) ->
     {noreply, State}.
